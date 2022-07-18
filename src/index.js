@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 app.use('/',route)
 
-const string = "mailto:vQrIj9jTyDzRssqt@cluster0.af5tq.mongodb.net/group47DataBase"
+const string = "mongodb+srv://Adhish-1998-DataBase:vQrIj9jTyDzRssqt@cluster0.af5tq.mongodb.net/group47DataBase"
 
 mongoose.connect(string, {useNewUrlParser: true})
 .then(()=>console.log("mongoDB is connected"))
