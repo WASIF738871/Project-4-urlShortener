@@ -1,19 +1,26 @@
 const urlId = require('short-id')
-// const validUrl = require('valid-url')      //doubt double validation
 const urlModel = require('../model/urlModel')
+const axios = require('axios')
 
+//-----------------------------URL Shorting------------------------------//
 
 const urlShorter = async function (req, res) {
     try {
         let origUrl = req.body.longUrl;
+        
         if (!origUrl) {
             return res.status(400).send({ status: false, message: "please Enter original URL in body" })
         }
 
-        // let validatedUrl = validUrl.isUri(origUrl)
-        if (!/^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/.test(origUrl)) {
-            return res.status(400).send({ status: false, message: "please Enter valid URL in body" })
+        let option = {
+            method: 'get',
+            url: origUrl
         }
+        let exist = await axios(option)
+            .then(() => origUrl) // Pending and Fulfilled Promise Handling
+            .catch(() => null); // Reject Promise Handling
+    
+        if(!exist) return res.status(400).send({status: false, message : "Invalid URL"})
 
         let isPresent = await urlModel.findOne({ longUrl: origUrl }).select({ _id: 0, longUrl: 1, shortUrl: 1, urlCode: 1 })
         if (isPresent) {
@@ -37,7 +44,7 @@ const urlShorter = async function (req, res) {
     }
 }
 
-
+//-------------------------------------Redirecting to Another URL-------------------------------//
 let redirectUrl = async function (req, res) {
     try {
         let urlCode = req.params.urlCode
@@ -45,15 +52,16 @@ let redirectUrl = async function (req, res) {
         // if (!urlCode){
         //     return res.status(400).send({ status: false, message: "please Enter urlCode in body" })
         // }
-        let urlExists = await urlModel.findOne({urlCode:urlCode})
-        if (!urlExists){
+        let urlExists = await urlModel.findOne({ urlCode: urlCode })
+        if (!urlExists) {
             return res.status(404).send({ status: false, message: "urlCode not found" })
         }
-        
+
         let origUrl = await urlModel.findOne({ urlCode })
         return res.status(302).send(`Redirecting to ${origUrl.longUrl}`)
         // return res.status(302).redirect(origUrl.longUrl)
     } catch (err) {
+        console.log(err)
         return res.status(500).send({ satus: false, messege: err.message })
     }
 
