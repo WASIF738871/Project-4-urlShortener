@@ -2,12 +2,6 @@
 const mongoose = require("mongoose")
 
 const urlSchema = new mongoose.Schema({
-    urlCode: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true
-    },
     longUrl: {
         type: String,
         required: true,
@@ -17,6 +11,12 @@ const urlSchema = new mongoose.Schema({
         type: String,
         unique :true,
         required: true
+    },
+    urlCode: {
+        type: String,
+        required: true,
+        unique: true,
+        // lowercase: true
     }
 
 },{timestamps:true})
