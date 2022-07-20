@@ -2,6 +2,10 @@ const urlId = require('short-id')
 const urlModel = require('../model/urlModel')
 const axios = require('axios')
 
+const { json } = require('body-parser')
+const index = require("../index")
+
+ 
 //-----------------------------URL Shorting------------------------------//
 
 const urlShorter = async function (req, res) {
@@ -28,7 +32,7 @@ const urlShorter = async function (req, res) {
         }
 
         let baseUrl = "http://localhost:3000/"
-        let urlCode = urlId.generate(origUrl)
+        let urlCode = urlId.generate().toLowerCase()
         let reqUrl = baseUrl + urlCode
 
         obj = {
@@ -45,30 +49,51 @@ const urlShorter = async function (req, res) {
 }
 
 //-------------------------------------Redirecting to Another URL-------------------------------//
+
+
+
+  
 let redirectUrl = async function (req, res) {
     try {
         let urlCode = req.params.urlCode
-        console.log(urlCode)
-        // if (!urlCode){
-        //     return res.status(400).send({ status: false, message: "please Enter urlCode in body" })
-        // }
-        let urlExists = await urlModel.findOne({ urlCode: urlCode })
-        if (!urlExists) {
-            return res.status(404).send({ status: false, message: "urlCode not found" })
+       // console.log(urlCode)
+        
+        if(/.*[A-Z].*/.test(urlCode)){
+            return res.status(400).send({ status: false, message: "please Enter urlCode only in lowercase " })
+
         }
 
-        let origUrl = await urlModel.findOne({ urlCode })
-        return res.status(302).send(`Redirecting to ${origUrl.longUrl}`)
-        // return res.status(302).redirect(origUrl.longUrl)
+        if(!/^[a-z0-9]{6,14}$/.test(urlCode)){
+            return res.status(400).send({ status: false, message: "please Enter valid urlCode  " })
+
+        }
+
+
+        let cachedurlData = await index.GET_ASYNC(`${req.params.urlCode}`)
+       
+        cachedurlData= JSON.parse(cachedurlData)
+      
+        if(cachedurlData) {
+            return res.status(302).redirect(cachedurlData.longUrl)
+        } else  {
+
+            let origUrl = await urlModel.findOne({ urlCode:urlCode }).select({_id:0, longUrl:1});
+            if (!origUrl) {
+                return res.status(404).send({ status: false, message: "url not found with this UrlCode!" })
+            }
+             console.log(origUrl)
+          await index.SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(origUrl))
+          return res.status(302).redirect(origUrl.longUrl);
+        }
+        
+      
+
     } catch (err) {
         console.log(err)
         return res.status(500).send({ satus: false, messege: err.message })
     }
 
 }
-
-
-
 
 
 module.exports = {
