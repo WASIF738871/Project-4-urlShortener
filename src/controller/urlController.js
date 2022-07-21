@@ -1,7 +1,6 @@
 const urlId = require('short-id')
 const urlModel = require('../model/urlModel')
 const axios = require('axios')
-
 const { json } = require('body-parser')
 const index = require("../index")
 
@@ -24,7 +23,7 @@ const urlShorter = async function (req, res) {
             .then(() => origUrl) // Pending and Fulfilled Promise Handling
             .catch(() => null); // Reject Promise Handling
     
-        if(!exist) return res.status(400).send({status: false, message : "Invalid URL"})
+        if(!exist) return res.status(400).send({status: false, message : "given URL doesn't exist"})
 
         let isPresent = await urlModel.findOne({ longUrl: origUrl }).select({ _id: 0, longUrl: 1, shortUrl: 1, urlCode: 1 })
         if (isPresent) {
@@ -56,21 +55,24 @@ const urlShorter = async function (req, res) {
 let redirectUrl = async function (req, res) {
     try {
         let urlCode = req.params.urlCode
-       // console.log(urlCode)
         
+        if(urlCode == ":urlCode")
+        return res.status(400).send({status: false, message: "please enter urlCode in Params"})
+
+
         if(/.*[A-Z].*/.test(urlCode)){
             return res.status(400).send({ status: false, message: "please Enter urlCode only in lowercase " })
 
         }
 
         if(!/^[a-z0-9]{6,14}$/.test(urlCode)){
-            return res.status(400).send({ status: false, message: "please Enter valid urlCode  " })
+            return res.status(400).send({ status: false, message: "please Enter valid urlCode! " })
 
         }
 
 
         let cachedurlData = await index.GET_ASYNC(`${req.params.urlCode}`)
-       
+      
         cachedurlData= JSON.parse(cachedurlData)
       
         if(cachedurlData) {
@@ -81,8 +83,8 @@ let redirectUrl = async function (req, res) {
             if (!origUrl) {
                 return res.status(404).send({ status: false, message: "url not found with this UrlCode!" })
             }
-             console.log(origUrl)
-          await index.SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(origUrl))
+            
+          await index.SET_ASYNC(`${req.params.urlCode}`,24*60*60, JSON.stringify(origUrl))
           return res.status(302).redirect(origUrl.longUrl);
         }
         

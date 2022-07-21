@@ -8,7 +8,7 @@ const redis = require("redis")
 const app = express();
 
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended:true}))
+
 
 app.use('/',route)
 
@@ -26,15 +26,15 @@ const redisClient = redis.createClient(
   redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
   });
-  const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+  const SET_ASYNC = promisify(redisClient.SETEX).bind(redisClient);
   const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-  console.log(typeof GET_ASYNC)
+  
   
 
 
 const string = "mongodb+srv://Adhish-1998-DataBase:vQrIj9jTyDzRssqt@cluster0.af5tq.mongodb.net/group47DataBase"
 
-mongoose.connect(string, {useNewUrlParser: true})
+mongoose.connect(string, {useNewUrlParser: true}) /// mongoose().connect
 .then(()=>console.log("mongoDB is connected"))
 .catch((err)=>console.log(err));
 
