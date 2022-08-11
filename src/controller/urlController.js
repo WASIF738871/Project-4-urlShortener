@@ -1,9 +1,7 @@
 const urlId = require('short-id')
 const urlModel = require('../model/urlModel')
 const axios = require('axios')
-const { json } = require('body-parser')
-const index = require("../index")
-
+const redis = require("../redis/redis")
  
 //-----------------------------URL Shorting------------------------------//
 
@@ -71,7 +69,7 @@ let redirectUrl = async function (req, res) {
         }
 
 
-        let cachedurlData = await index.GET_ASYNC(`${req.params.urlCode}`)
+        let cachedurlData = await redis.GET_ASYNC(`${req.params.urlCode}`)
       
         cachedurlData= JSON.parse(cachedurlData)
       
@@ -84,7 +82,7 @@ let redirectUrl = async function (req, res) {
                 return res.status(404).send({ status: false, message: "url not found with this UrlCode!" })
             }
             
-          await index.SET_ASYNC(`${req.params.urlCode}`,24*60*60, JSON.stringify(origUrl))
+          await redis.SET_ASYNC(`${req.params.urlCode}`,24*60*60, JSON.stringify(origUrl))
           return res.status(302).redirect(origUrl.longUrl);
         }
         

@@ -2,8 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const route = require('./route/route')
-const redis = require("redis")
- const {promisify} = require("util")
+
 
 const app = express();
 
@@ -14,21 +13,7 @@ app.use('/',route)
 
 
 
-const redisClient = redis.createClient(
-    15993,
-    "redis-15993.c277.us-east-1-3.ec2.cloud.redislabs.com",
-    { no_ready_check: true }
-  );
-  redisClient.auth("qk3gYOwjfnlWy8oxmgM7ZVTn462PsEky", function (err) {
-    if (err) throw err;
-  });
-  
-  redisClient.on("connect", async function () {
-    console.log("Connected to Redis..");
-  });
-  const SET_ASYNC = promisify(redisClient.SETEX).bind(redisClient);
-  const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
-  
+
   
 
 
@@ -45,5 +30,4 @@ app.listen(port,function(){
     console.log("app is running on the port"+port)
 })
 
-exports.GET_ASYNC = GET_ASYNC;
-exports.SET_ASYNC = SET_ASYNC;
+
