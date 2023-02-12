@@ -1,7 +1,8 @@
 const urlId = require('short-id')
 const urlModel = require('../model/urlModel')
-const axios = require('axios')
 const redis = require("../redis/redis")
+const axios = require('axios')
+// const redis = require("../redis/redis")
  
 //-----------------------------URL Shorting------------------------------//
 
@@ -83,6 +84,9 @@ let redirectUrl = async function (req, res) {
             }
             
           await redis.SET_ASYNC(`${req.params.urlCode}`,24*60*60, JSON.stringify(origUrl))
+
+
+        //   let origUrl = await urlModel.findOne({ urlCode:urlCode }).select({_id:0, longUrl:1});
           return res.status(302).redirect(origUrl.longUrl);
         }
         

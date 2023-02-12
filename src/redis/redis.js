@@ -2,11 +2,11 @@ const redis = require("redis")
 const { promisify } = require("util")
 
 const redisClient = redis.createClient(
-    18154,
-    "redis-18154.c8.us-east-1-2.ec2.cloud.redislabs.com",
+    10450,
+    "redis-10450.c264.ap-south-1-1.ec2.cloud.redislabs.com",
     { no_ready_check: true }
 );
-redisClient.auth("GG9ERgMXfsynk52wTLJ9gTEthVy1T1ag", function (err) {
+redisClient.auth("Vxklo4qbS21tiXYHiRx2f1gVLQjcHf1h", function (err) {
     if (err) throw err;
 });
 
